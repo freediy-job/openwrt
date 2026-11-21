@@ -94,7 +94,9 @@ function git_sparse_clone() {
 
 # 4. 更新 golang 和 rust
 git clone --depth=1 -b 27.x https://github.com/sbwml/packages_lang_golang feeds/packages/lang/golang
-git clone https://github.com/sbwml/packages_lang_rust feeds/packages/lang/rust
+#git clone https://github.com/sbwml/packages_lang_rust feeds/packages/lang/rust
+git_sparse_clone openwrt-25.12 https://github.com/openwrt/packages lang/rust
+mv package/rust feeds/packages/lang/rust
 
 # 5. 主题与常规插件
 # 添加argon主题
@@ -151,7 +153,22 @@ git_sparse_clone master https://github.com/sirpdboy/luci-app-poweroffdevice luci
 # 8. 删除多余的插件
 #rm -rf package/all-proxy/mihomo
 #rm -rf package/helloworld/mihomo
-# 9. 调用 daeuniverse_honk.sh，并自动清理 Windows 换行符
+
+# 9. 调用 rust 补丁
+BUILD_PATH="$GITHUB_WORKSPACE/patch/rust_patch.sh"
+if [ -f "$BUILD_PATH" ]; then
+  echo "🧹 正在自动清理 rust_patch.sh 的 Windows 换行符 (CRLF -> LF)..."
+  sed -i 's/\r$//' "$BUILD_PATH"
+  
+  echo "🔑 正在赋予 rust_patch.sh 执行权限..."
+  chmod +x "$BUILD_PATH"  # 加上这行更稳妥
+  
+  echo "🚀 正在执行 rust_patch.sh..."
+  bash "$BUILD_PATH"
+fi
+###
+
+# 10. 调用 daeuniverse_honk.sh，并自动清理 Windows 换行符
 BUILD_PATH="$GITHUB_WORKSPACE/patch/daeuniverse_honk.sh"
 if [ -f "$BUILD_PATH" ]; then
   echo "🧹 正在自动清理 daeuniverse_honk.sh 的 Windows 换行符 (CRLF -> LF)..."
@@ -163,3 +180,4 @@ if [ -f "$BUILD_PATH" ]; then
   echo "🚀 正在执行 daeuniverse_honk.sh..."
   bash "$BUILD_PATH"
 fi
+###
